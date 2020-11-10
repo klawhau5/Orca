@@ -146,6 +146,9 @@ function Orca (library) {
   }
 
   this.isAllowed = function (g) {
+    if (client.vim.isActive) {
+      return g === '/' || g === '.' || g === 'Escape' || !!library[`${g}`.toLowerCase()]
+    }
     return g === '.' || !!library[`${g}`.toLowerCase()]
   }
 

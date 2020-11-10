@@ -25,6 +25,7 @@ function Client () {
   this.cursor = new Cursor(this)
   this.commander = new Commander(this)
   this.clock = new Clock(this)
+  this.vim = new Vim(this)
 
   // Settings
   this.scale = window.devicePixelRatio
@@ -77,6 +78,8 @@ function Client () {
     this.acels.set('Cursor', 'Toggle Block Comment', 'CmdOrCtrl+/', () => { this.cursor.comment() })
     this.acels.set('Cursor', 'Trigger Operator', 'CmdOrCtrl+P', () => { this.cursor.trigger() })
     this.acels.set('Cursor', 'Reset', 'Escape', () => { this.toggleGuide(false); this.commander.stop(); this.clear(); this.clock.isPaused = false; this.cursor.reset() })
+
+    this.acels.set('Vim', 'Toggle Vim Mode', 'CmdOrCtrl+;', () => { if (this.vim.isActive) { this.vim.isActive = false } else { this.vim.start() } })
 
     this.acels.set('Move', 'Move North', 'ArrowUp', () => { this.cursor.move(0, 1) })
     this.acels.set('Move', 'Move East', 'ArrowRight', () => { this.cursor.move(1, 0) })
@@ -140,7 +143,7 @@ function Client () {
     this.update()
     this.el.className = 'ready'
 
-    this.toggleGuide()
+    //this.toggleGuide()
   }
 
   this.reset = () => {
@@ -335,6 +338,11 @@ function Client () {
       this.write(`${this.clock}`, this.grid.w * 3, this.orca.h + 1, this.grid.w, this.clock.isPuppet ? 3 : this.io.midi.isClock ? 11 : this.clock.isPaused ? 20 : 2)
       this.write(`${display(Object.keys(this.orca.variables).join(''), this.orca.f, this.grid.w - 1)}`, this.grid.w * 4, this.orca.h + 1, this.grid.w - 1)
       this.write(this.orca.f < 250 ? `> ${this.io.midi.toOutputString()}` : '', this.grid.w * 5, this.orca.h + 1, this.grid.w * 4)
+    }
+
+    if (this.vim.isActive) {
+      this.write('Vim', this.grid.w * 0, this.orca.h + 2, this.grid.w * 4)
+      this.write(`${this.cursor.ins ? 'Insert' : this.vim.isVisual ? 'Visual' : 'Normal'}`, this.grid.w * 1, this.orca.h + 2, this.grid.w * 4, this.cursor.ins ? 1 : this.vim.isVisual ? 11 : 2)
     }
   }
 
