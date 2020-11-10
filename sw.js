@@ -24,6 +24,7 @@ const assets = [
   './desktop/sources/scripts/commander.js',
   './desktop/sources/scripts/cursor.js',
   './desktop/sources/scripts/client.js'
+  './desktop/sources/scripts/vim.js'
 ]
 
 self.addEventListener('install', async function () {

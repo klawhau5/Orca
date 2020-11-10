@@ -13,6 +13,10 @@ function Cursor (client) {
 
   this.ins = false
 
+  this.findString = ''
+  this.currentFindIndex = -1
+  this.findResultIndices = []
+
   this.start = () => {
     document.onmousedown = this.onMouseDown
     document.onmouseup = this.onMouseUp
@@ -74,6 +78,7 @@ function Cursor (client) {
   this.reset = (pos = false) => {
     this.select(pos ? 0 : this.x, pos ? 0 : this.y, 0, 0)
     this.ins = 0
+    client.vim.isVisual = false
   }
 
   this.read = () => {
@@ -82,9 +87,12 @@ function Cursor (client) {
 
   this.write = (g) => {
     if (!client.orca.isAllowed(g)) { return }
-    if (client.orca.write(this.x, this.y, g) && this.ins) {
-      this.move(1, 0)
+    if (!client.vim.isActive || (client.vim.isActive && client.vim.isInsert)) {
+      if (client.orca.write(this.x, this.y, g) && this.ins) {
+        this.move(1, 0)
+      }
     }
+    client.vim.isInsert = this.ins
     client.history.record(client.orca.s)
   }
 
@@ -98,10 +106,25 @@ function Cursor (client) {
   }
 
   this.find = (str) => {
-    const i = client.orca.s.indexOf(str)
-    if (i < 0) { return }
-    const pos = client.orca.posAt(i)
-    this.select(pos.x, pos.y, str.length - 1, 0)
+    if (client.vim.isActive && str.length) {
+      this.findString = str
+      var i = -1
+      while ((i = client.orca.s.indexOf(this.findString, i + 1)) >= 0) {
+        this.findResultIndices.push(i)
+      }
+      this.findNext(1)
+    } else {
+      const i = client.orca.s.indexOf(str)
+      if (i < 0) { return }
+      const pos = client.orca.posAt(i)
+      this.select(pos.x, pos.y, str.length - 1, 0)
+    }
+  }
+
+  this.findNext = (direction) => {
+    this.currentFindIndex++
+    const position = client.orca.posAt(this.findResultIndices[this.currentFindIndex])
+    this.select(position.x, position.y, this.findString.length - 1, 0)
   }
 
   this.inspect = () => {
