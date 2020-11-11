@@ -23,7 +23,7 @@ Fork of the lovely [ORCΛ](https:github.com/hundredrabbits/orca) from Hundred Ra
 | **'**{a-zA-Z}       | Jump to mark                                                 |
 | **Escape**          | Return to Normal mode                                        |
 | **u**               | Undo last change                                             |
-| \["x]**x**          | Deletes character under cursor (into optional register)      |
+| \["x]**x**          | Delete character under cursor (into optional register)       |
 | ["x\]**d**{motion}  | Delete the text that motion moves over (into optional register) |
 | \["x\]**y**{motion} | Yank the text that motion moves over (into optional register) |
 | \["x]**p**          | Put text (from optional register) at cursor position         |
