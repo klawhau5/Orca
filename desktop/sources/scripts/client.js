@@ -143,7 +143,7 @@ function Client () {
     this.update()
     this.el.className = 'ready'
 
-    //this.toggleGuide()
+    this.toggleGuide()
   }
 
   this.reset = () => {
