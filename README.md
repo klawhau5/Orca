@@ -16,6 +16,11 @@ Fork of the lovely [ORCΛ](https:github.com/hundredrabbits/orca) From Hundred Ra
 | **b**               | Move cursor backward by word \[count times]                  |
 | **i**               | Enter Insert mode                                            |
 | **v**               | Enter Visual mode                                            |
+| **/**               | Enter Find mode (via native Commander)                       |
+| **n**               | Jump to next find match                                      |
+| **N**               | Jump to previous find match                                  |
+| **m**{a-zA-Z}       | Set mark                                                     |
+| **'**{a-zA-Z}       | Jump to mark                                                 |
 | **Escape**          | Return to Normal mode                                        |
 | **u**               | Undo last change                                             |
 | \["x]**x**          | Deletes character under cursor (into optional register)      |

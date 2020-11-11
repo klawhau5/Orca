@@ -10,7 +10,9 @@ function Vim (client) {
   this.operator = ''
   this.count = 1
   this.motion = ''
+  this.identifier = ''
   this.mappings = {}
+  this.marks = {}
 
   // {operator} {count} {motion}
   // {count} {operator} {motion}
@@ -40,6 +42,56 @@ function Vim (client) {
       }
     }
     return outKey
+  }
+
+  this.parseCommand = () => {
+    const motionRegex = /\D/
+    const countRegex = /[\d]+/
+    const operatorRegex = /\D/
+    const identifierRegex = /\D/
+    this.motion = this.parseCommandComponent(motionRegex)
+    if (this.motion.length > 0) {
+      if (this.motion == 'm') {
+        if (this.identifier = this.parseCommandComponent(identifierRegex !== '')) {
+          return true
+        }
+      } else {
+        this.count = Number(this.parseCommandComponent(countRegex))
+        this.count = this.count == 0 ? 1 : this.count
+        this.operator = this.parseCommandComponent(operatorRegex)
+        return true
+      }
+    }
+  }
+
+  this.parseCommandComponent = (regex) => {
+    const lastInput = this.inputBuffer[this.inputBuffer.length - 1]
+    if (lastInput == 'Escape') { return lastInput }
+    const inputBufferString = this.inputBuffer.join('')
+    const componentIndex = inputBufferString.search(regex)
+    if (componentIndex > -1) {
+      this.popKey()
+      const component = inputBufferString.match(regex)
+      return component[component.length - 1]
+    }
+    return ''
+  }
+
+  this.onKeyDown = (e) => {
+    if (e.ctrlKey || e.metaKey) { return }
+    client[this.isActive === true ? 'commander' : client.vim.isActive === true ? 'vim' : 'cursor'].write(e.key)
+    e.stopPropagation()
+  }
+
+  this.write = (g) => {
+    if (!client.orca.isAllowed(g)) { return }
+    if (!client.vim.isActive || (client.vim.isActive && client.vim.isInsert)) {
+      if (client.orca.write(this.x, this.y, g) && this.ins) {
+        this.move(1, 0)
+      }
+    }
+    client.vim.isInsert = this.ins
+    client.history.record(client.orca.s)
   }
 
   /* 
@@ -78,9 +130,9 @@ function Vim (client) {
             client.cursor.findNext(1)
             break
           case 'N':
-            client.cursor.findNext(1)
+            client.cursor.findNext(-1)
             break
-          case 'Esc':
+          case 'Escape':
             client.cursor.reset()
             break
           case 'd':
@@ -112,6 +164,12 @@ function Vim (client) {
             } else {
               client.cursor.reset()
             }
+            break
+          case 'm':
+            this.setMark(this.identifier, client.cursor.x, client.cursor.y)
+            break
+          case 'm':
+            client.cursor.move(client.orca.posAt(this.getMark(this.identifier)))
             break
         }
       } else {
@@ -189,30 +247,17 @@ function Vim (client) {
     return indices;
   }
 
-  this.parseCommand = () => {
-    const motionRegex = /\D/
-    const countRegex = /[\d]+/
-    const operatorRegex = /\D/
-    this.motion = this.parseCommandComponent(motionRegex)
-    if (this.motion.length > 0) {
-      this.count = Number(this.parseCommandComponent(countRegex))
-      this.count = this.count == 0 ? 1 : this.count
-      this.operator = this.parseCommandComponent(operatorRegex)
-      return true
-    }
+  this.setMark = (identifier, xPosition, yPosition) => {
+    const index = client.orca.indexAt(xPosition, yPosition)
+    this.marks[identifier, index]
   }
 
-  this.parseCommandComponent = (regex) => {
-    const lastInput = this.inputBuffer[this.inputBuffer.length - 1]
-    if (lastInput == 'Escape') { return lastInput }
-    const inputBufferString = this.inputBuffer.join('')
-    const componentIndex = inputBufferString.search(regex)
-    if (componentIndex > -1) {
-      this.popKey()
-      const component = inputBufferString.match(regex)
-      return component[component.length - 1]
+  this.getMark = (identifier) => {
+    var outIndex = -1
+    if (outIndex = this.marks[identifier] > 0) {
+      return outIndex
     }
-    return ''
+    return client.orca.indexAt(client.cursor.x, client.cursor.y)
   }
 
   this.pushKey = (inKey) => {
