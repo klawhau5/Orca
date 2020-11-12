@@ -2,7 +2,7 @@
 
 ​                         <img src="https://raw.githubusercontent.com/hundredrabbits/100r.co/master/media/content/characters/orca.hello.png" width="300"/><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Icon-Vim.svg/1200px-Icon-Vim.svg.png" width=200/>
 
-Fork of the lovely [ORCΛ](https:github.com/hundredrabbits/orca) from Hundred Rabbits with rudimentary Vim navigation and editing mappings. 
+Fork of the lovely [ORCΛ](https://github.com/hundredrabbits/orca) from Hundred Rabbits with rudimentary Vim navigation and editing mappings. 
 
 ## Supported Mappings
 
