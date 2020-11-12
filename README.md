@@ -6,24 +6,24 @@ Fork of the lovely [ORCΛ](https:github.com/hundredrabbits/orca) from Hundred Ra
 
 ## Supported Mappings
 
-| Command             | Behavior                                                     |
-| ------------------- | ------------------------------------------------------------ |
-| **h**               | Move cursor west \[count times]                              |
-| **j**               | Move cursor south \[count times\]                            |
-| **k**               | Move cursor north \[count times]                             |
-| **l**               | Move cursor east \[count times]                              |
-| **w**               | Move cursor forward by word \[count times]                   |
-| **b**               | Move cursor backward by word \[count times]                  |
-| **i**               | Enter Insert mode                                            |
-| **v**               | Enter Visual mode                                            |
-| **/**               | Enter Find mode (via native Commander)                       |
-| **n**               | Jump to next find match                                      |
-| **N**               | Jump to previous find match                                  |
-| **m**{a-zA-Z}       | Set mark                                                     |
-| **'**{a-zA-Z}       | Jump to mark                                                 |
-| **Escape**          | Return to Normal mode                                        |
-| **u**               | Undo last change                                             |
-| \["x]**x**          | Delete character under cursor (into optional register)       |
-| ["x\]**d**{motion}  | Delete the text that motion moves over (into optional register) |
-| \["x\]**y**{motion} | Yank the text that motion moves over (into optional register) |
-| \["x]**p**          | Put text (from optional register) at cursor position         |
+| Key(s)                        | Behavior                                                     |
+| ----------------------------- | ------------------------------------------------------------ |
+| <kbd>h</kbd>                  | Move cursor west \[count times]                              |
+| <kbd>j</kbd>                  | Move cursor south \[count times\]                            |
+| <kbd>k</kbd>                  | Move cursor north \[count times]                             |
+| <kbd>l</kbd>                  | Move cursor east \[count times]                              |
+| <kbd>w</kbd>                  | Move cursor forward by word \[count times]                   |
+| <kbd>b</kbd>                  | Move cursor backward by word \[count times]                  |
+| <kbd>i</kbd>                  | Enter Insert mode                                            |
+| <kbd>v</kbd>                  | Enter Visual mode                                            |
+| <kbd>/</kbd>                  | Enter Find mode (via native Commander)                       |
+| <kbd>n</kbd>                  | Jump to next find match                                      |
+| <kbd>N</kbd>                  | Jump to previous find match                                  |
+| <kbd>m</kbd>{*a-zA-Z*}         | Set mark                                                     |
+| <kbd>'</kbd>{*a-zA-Z*}        | Jump to mark                                                 |
+| <kbd>Esc</kbd>                | Return to Normal mode                                        |
+| <kbd>u</kbd>                  | Undo last change                                             |
+| [<kbd>'</kbd>*x*]<kbd>x</kbd> | Delete character under cursor (into optional register)       |
+| [<kbd>'</kbd>*x*]<kbd>d</kbd>{*motion*}  | Delete the text that motion moves over (into optional register) |
+| [<kbd>'</kbd>*x*]<kbd>y</kbd>{*motion*}  | Yank the text that motion moves over (into optional register) |
+| [<kbd>'</kbd>*x*]<kbd>p</kbd>            | Put text (from optional register) at cursor position         |
