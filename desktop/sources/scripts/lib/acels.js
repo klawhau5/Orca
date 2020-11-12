@@ -49,22 +49,18 @@ function Acels (client) {
     return accelerator
   }
 
-  this.pipe = (obj) => {
+  this.setPipe = (obj) => {
     this.pipe = obj
   }
 
   this.onKeyDown = (e) => {
-    // TODO: refactor?
-    if (client.vim.isActive && !client.commander.isActive && (!client.vim.isInsert || e.key == 'Escape')) {
-      if (e.ctrlKey || e.metaKey || e.key == 'Shift') { return }
-      client.vim.pushKey(e.key)
-      client.vim.processMotionOrCommand()
-    } else {
-      const target = this.get(this.convert(e))
-      if (!target || !target.downfn) { return this.pipe ? this.pipe.onKeyDown(e) : null }
-      target.downfn()
-      e.preventDefault()
+    var target = null
+    if (!client.vim.isActive) {
+      target = this.get(this.convert(e))
     }
+    if (!target || !target.downfn) { return this.pipe ? this.pipe.onKeyDown(e) : null }
+    target.downfn()
+    e.preventDefault()
   }
 
   this.onKeyUp = (e) => {

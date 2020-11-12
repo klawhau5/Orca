@@ -3,6 +3,7 @@
 const fs = require('fs')
 
 function Vim (client) {
+  this.motions = motions
   this.isActive = false
   this.isInsert = false
   this.isVisual = false
@@ -18,7 +19,6 @@ function Vim (client) {
   // {count} {operator} {motion}
 
   this.operators = ['c', 'd', 'y']
-  this.motions = ['w', 'e', 'h', 'j', 'k', 'l']
 
   this.start = () => {
     this.isActive = true
@@ -29,6 +29,13 @@ function Vim (client) {
     this.count = 1
     this.motion = ''
     client.cursor.ins = false
+    client.acels.setPipe(this)
+    client.update()
+  }
+
+  this.stop = () => {
+    this.isActive = false
+    client.acels.setPipe(client.commander)
     client.update()
   }
 
@@ -64,6 +71,12 @@ function Vim (client) {
     }
   }
 
+  /* 
+    Returns true when the most recent character(s) on the input
+    stack correspond to a motion. Operator and count may or
+    may not be defined.
+  */
+
   this.parseCommandComponent = (regex) => {
     const lastInput = this.inputBuffer[this.inputBuffer.length - 1]
     if (lastInput == 'Escape') { return lastInput }
@@ -77,111 +90,21 @@ function Vim (client) {
     return ''
   }
 
+  this.processMotionOrCommand = () => {
+    if (this.parseCommand()) {
+      this.motions[this.motion](this.count)
+      this.clearInputBuffer()
+    }
+  }
+
   this.onKeyDown = (e) => {
     if (e.ctrlKey || e.metaKey) { return }
-    client[this.isActive === true ? 'commander' : client.vim.isActive === true ? 'vim' : 'cursor'].write(e.key)
+    client[this.isInsert === false || (e.key === 'Escape' && this.isInsert === true) ? 'vim' : 'cursor'].write(e.key)
     e.stopPropagation()
   }
 
-  this.write = (g) => {
-    if (!client.orca.isAllowed(g)) { return }
-    if (!client.vim.isActive || (client.vim.isActive && client.vim.isInsert)) {
-      if (client.orca.write(this.x, this.y, g) && this.ins) {
-        this.move(1, 0)
-      }
-    }
-    client.vim.isInsert = this.ins
-    client.history.record(client.orca.s)
-  }
-
-  /* 
-    Returns true when the most recent character(s) on the input
-    stack correspond to a motion. Operator and count may or
-    may not be defined.
-  */
-
-  this.processMotionOrCommand = () => {
-    if (this.parseCommand()) {
-      if (!client.cursor.ins) {
-        switch (this.motion) {
-          case 'h':
-            this.move(-1 * this.count, 0, -1 * this.count, 0)
-            break
-          case 'j':
-            this.move(0, -1 * this.count, 0, 1 * this.count)
-            break
-          case 'k':
-            this.move(0, 1 * this.count, 0, -1 * this.count)
-            break
-          case 'l':
-            this.move(1 * this.count, 0, 1 * this.count, 0)
-            break
-          case 'i':
-            client.cursor.ins = true
-            this.isInsert = true
-            break
-          case 'w':
-            this.wordMotion(1)
-            break
-          case 'b':
-            this.wordMotion(-1)
-            break
-          case 'n':
-            client.cursor.findNext(1)
-            break
-          case 'N':
-            client.cursor.findNext(-1)
-            break
-          case 'Escape':
-            client.cursor.reset()
-            break
-          case 'd':
-            if (this.isVisual) { this.isVisual = false }
-            client.cursor.cut()
-            break
-          case 'x':
-            if (this.isVisual) { this.isVisual = false }
-            client.cursor.cut()
-            break
-          case 'y':
-            if (this.isVisual) { this.isVisual = false }
-            client.cursor.copy()
-            break
-          case 'p':
-            client.cursor.paste()
-            break
-          case 'u':
-            client.history.undo()
-            break
-          case '/':
-            this.clearInputBuffer()
-            client.commander.start('find:')
-            break
-          case 'v':
-            this.isVisual = !this.isVisual
-            if (this.isVisual) {
-              client.cursor.select(client.cursor.x, client.cursor.y, client.cursor.w, client.cursor.h)
-            } else {
-              client.cursor.reset()
-            }
-            break
-          case 'm':
-            this.setMark(this.identifier, client.cursor.x, client.cursor.y)
-            break
-          case 'm':
-            client.cursor.move(client.orca.posAt(this.getMark(this.identifier)))
-            break
-        }
-      } else {
-        switch (this.motion) {
-          case 'Escape':
-            this.isInsert = false
-            client.cursor.ins = false
-            break
-        }
-      }
-      this.clearInputBuffer()
-    }
+  this.onKeyUp = (e) => {
+    client.update()
   }
 
   this.move = (offsetX, offsetY, offsetW, offsetH) => {
@@ -260,13 +183,21 @@ function Vim (client) {
     return client.orca.indexAt(client.cursor.x, client.cursor.y)
   }
 
-  this.pushKey = (inKey) => {
+  this.write = (inKey) => {
+    if (inKey === 'Shift') { return }
     var key = this.checkVimrcMappings(inKey)
     if (key !== 'Escape') {
       key = key.split('')
     }
     this.inputBuffer = this.inputBuffer.concat(key)
     this.parseInputBuffer()
+    this.processMotionOrCommand()
+  }
+  
+  this.trigger = () => {
+    if (this.isActive) {
+      client.acels.setPipe(this)
+    }
   }
 
   this.popKey = () => {

@@ -10,6 +10,7 @@
 /* global Commander */
 /* global Clock */
 /* global Theme */
+/* global Vim */
 
 function Client () {
   this.version = 178
@@ -79,7 +80,7 @@ function Client () {
     this.acels.set('Cursor', 'Trigger Operator', 'CmdOrCtrl+P', () => { this.cursor.trigger() })
     this.acels.set('Cursor', 'Reset', 'Escape', () => { this.toggleGuide(false); this.commander.stop(); this.clear(); this.clock.isPaused = false; this.cursor.reset() })
 
-    this.acels.set('Vim', 'Toggle Vim Mode', 'CmdOrCtrl+;', () => { if (this.vim.isActive) { this.vim.isActive = false } else { this.vim.start() } })
+    this.acels.set('Vim', 'Toggle Vim Mode', 'CmdOrCtrl+;', () => { if (this.vim.isActive) { this.vim.stop() } else { this.vim.start() } })
 
     this.acels.set('Move', 'Move North', 'ArrowUp', () => { this.cursor.move(0, 1) })
     this.acels.set('Move', 'Move East', 'ArrowRight', () => { this.cursor.move(1, 0) })
@@ -125,7 +126,7 @@ function Client () {
     this.acels.set('Communication', 'Choose UDP Port', 'alt+U', () => { this.commander.start('udp:') })
 
     this.acels.install(window)
-    this.acels.pipe(this.commander)
+    this.acels.setPipe(this.commander)
   }
 
   this.start = () => {

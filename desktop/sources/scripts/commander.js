@@ -126,7 +126,7 @@ function Commander (client) {
   }
 
   this.run = function () {
-    const tool = this.isActive === true ? 'commander' : 'cursor'
+    const tool = this.isActive === true ? 'commander' : client.vim.isActive === true ? 'vim' : 'cursor'
     client[tool].trigger()
     client.update()
   }
