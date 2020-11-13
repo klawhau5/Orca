@@ -9,7 +9,7 @@ function Commander (client) {
   // Library
 
   this.passives = {
-    find: (p) => { client.cursor.find(p.str) },
+    find: (p) => { client[client.vim.isActive === true ? 'vim' : 'cursor'].find(p.str) },
     select: (p) => { client.cursor.select(p.x, p.y, p.w || 0, p.h || 0) },
     inject: (p) => {
       client.cursor.select(p._x, p._y)

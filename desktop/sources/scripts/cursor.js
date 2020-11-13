@@ -13,8 +13,6 @@ function Cursor (client) {
 
   this.ins = false
 
-  this.findString = ''
-
   this.start = () => {
     document.onmousedown = this.onMouseDown
     document.onmouseup = this.onMouseUp
@@ -104,35 +102,6 @@ function Cursor (client) {
     if (i < 0) { return }
     const pos = client.orca.posAt(i)
     this.select(pos.x, pos.y, str.length - 1, 0)
-    if (client.vim.isActive && str.length) {
-      this.findString = str
-    }
-  }
-
-  this.findNext = (direction) => {
-    var findResultIndices = []
-    var index = -1
-    const currentIndex = client.orca.indexAt(this.x, this.y)
-    var findIndex = currentIndex
-    if (this.findString.length) {
-      while ((index = client.orca.s.indexOf(this.findString, index + 1)) >= 0) {
-        findResultIndices.push(index)
-      }
-      if (direction == -1) {
-        findResultIndices.reverse()
-      }
-      for (const index of findResultIndices) {
-        if ((direction == 1 && index > currentIndex) || (direction == -1 && index < currentIndex)) {
-          findIndex = index
-          break
-        }
-      }
-      if (currentIndex == 0 && direction == -1) {
-        findIndex = findResultIndices[0]
-      }
-    }
-    const findPosition = client.orca.posAt(findIndex)
-    this.select(findPosition.x, findPosition.y, this.findString.length - 1, 0)
   }
 
   this.inspect = () => {

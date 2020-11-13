@@ -14,6 +14,7 @@ function Vim (client) {
   this.identifier = ''
   this.mappings = {}
   this.marks = {}
+  this.findString = ''
 
   // {operator} {count} {motion}
   // {count} {operator} {motion}
@@ -51,6 +52,12 @@ function Vim (client) {
     return outKey
   }
 
+  /* 
+    Returns true when the most recent character(s) on the input
+    stack correspond to a motion. Operator and count may or
+    may not be defined.
+  */
+
   this.parseCommand = () => {
     const motionRegex = /\D/
     const countRegex = /[\d]+/
@@ -70,12 +77,6 @@ function Vim (client) {
       }
     }
   }
-
-  /* 
-    Returns true when the most recent character(s) on the input
-    stack correspond to a motion. Operator and count may or
-    may not be defined.
-  */
 
   this.parseCommandComponent = (regex) => {
     const lastInput = this.inputBuffer[this.inputBuffer.length - 1]
@@ -181,6 +182,40 @@ function Vim (client) {
       return outIndex
     }
     return client.orca.indexAt(client.cursor.x, client.cursor.y)
+  }
+
+  this.find = (searchString) => {
+    const index = client.orca.s.indexOf(searchString)
+    if (index < 0) { return }
+    const findPosition = client.orca.posAt(index)
+    client.cursor.select(findPosition.x, findPosition.y, searchString.length - 1, 0)
+    this.findString = searchString
+  }
+
+  this.findNext = (direction) => {
+    var findResultIndices = []
+    var index = -1
+    const currentIndex = client.orca.indexAt(client.cursor.x, client.cursor.y)
+    var findIndex = currentIndex
+    if (this.findString.length) {
+      while ((index = client.orca.s.indexOf(this.findString, index + 1)) >= 0) {
+        findResultIndices.push(index)
+      }
+      if (direction == -1) {
+        findResultIndices.reverse()
+      }
+      for (const index of findResultIndices) {
+        if ((direction == 1 && index > currentIndex) || (direction == -1 && index < currentIndex)) {
+          findIndex = index
+          break
+        }
+      }
+      if ((currentIndex <= findResultIndices[findResultIndices.length - 1] && direction == -1) ||
+         (currentIndex >= findResultIndices[findResultIndices.length - 1] && direction == 1)
+      ) { findIndex = findResultIndices[0] }
+    }
+    const findPosition = client.orca.posAt(findIndex)
+    client.cursor.select(findPosition.x, findPosition.y, this.findString.length - 1, 0)
   }
 
   this.write = (inKey) => {

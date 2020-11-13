@@ -32,11 +32,11 @@ motions.b = function () {
 }
 
 motions.n = function () {
-  client.cursor.findNext(1)
+  client.vim.findNext(1)
 }
 
 motions.N = function () {
-  client.cursor.findNext(-1)
+  client.vim.findNext(-1)
 }
 
 motions.Escape = function () {
