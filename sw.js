@@ -15,6 +15,7 @@ const assets = [
   './desktop/sources/scripts/core/operator.js',
   './desktop/sources/scripts/core/orca.js',
   './desktop/sources/scripts/core/transpose.js',
+  './desktop/sources/scripts/core/vim-motions.js'
   './desktop/sources/scripts/core/io/cc.js',
   './desktop/sources/scripts/core/io/midi.js',
   './desktop/sources/scripts/core/io/mono.js',

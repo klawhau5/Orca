@@ -109,6 +109,9 @@ function Commander (client) {
     this.query = ''
     this.historyIndex = this.history.length
     client.update()
+    if (client.vim.isActive) {
+      client.acels.setPipe(client.vim)
+    }
   }
 
   this.erase = function () {

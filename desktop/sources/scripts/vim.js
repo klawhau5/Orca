@@ -1,5 +1,7 @@
 'use strict'
 
+/* global vim-motions */
+
 const fs = require('fs')
 
 function Vim (client) {
@@ -7,7 +9,7 @@ function Vim (client) {
   this.isActive = false
   this.isInsert = false
   this.isVisual = false
-  this.inputBuffer = [] 
+  this.inputBuffer = []
   this.operator = ''
   this.count = 1
   this.motion = ''
@@ -52,7 +54,7 @@ function Vim (client) {
     return outKey
   }
 
-  /* 
+  /*
     Returns true when the most recent character(s) on the input
     stack correspond to a motion. Operator and count may or
     may not be defined.
@@ -65,6 +67,7 @@ function Vim (client) {
     const identifierRegex = /\D/
     this.motion = this.parseCommandComponent(motionRegex)
     if (this.motion.length > 0) {
+      this.parseInputBuffer()
       if (this.motion == 'm') {
         if (this.identifier = this.parseCommandComponent(identifierRegex !== '')) {
           return true
@@ -99,7 +102,7 @@ function Vim (client) {
   }
 
   this.onKeyDown = (e) => {
-    if (e.ctrlKey || e.metaKey) { return }
+    if (e.ctrlKey || e.metaKey || e.key === ' ' || e.key === 'Spacebar') { return }
     client[this.isInsert === false || (e.key === 'Escape' && this.isInsert === true) ? 'vim' : 'cursor'].write(e.key)
     e.stopPropagation()
   }
@@ -225,10 +228,9 @@ function Vim (client) {
       key = key.split('')
     }
     this.inputBuffer = this.inputBuffer.concat(key)
-    this.parseInputBuffer()
     this.processMotionOrCommand()
   }
-  
+
   this.trigger = () => {
     if (this.isActive) {
       client.acels.setPipe(this)
@@ -243,13 +245,20 @@ function Vim (client) {
     Numbers will enter as individual digits.
     Need to combine to full entered number.
   */
-  
-  this.parseInputBuffer = () => {
 
+  this.parseInputBuffer = () => {
+    const countRegex = /\d/
+    var countString = ''
+    for (let index = 0; index < this.inputBuffer.length; index++) {
+      if (this.inputBuffer[index].search(countRegex) > -1) {
+        countString += this.inputBuffer[index]
+      }
+    }
+    this.inputBuffer.splice(0, countString.length, countString)
   }
 
   this.clearInputBuffer = () => {
-    this.inputBuffer = [] 
+    this.inputBuffer = []
     this.operator = ''
     this.count = 1
     this.motion = ''

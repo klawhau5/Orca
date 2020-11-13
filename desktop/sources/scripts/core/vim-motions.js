@@ -1,5 +1,7 @@
 'use strict'
 
+/* global client */
+
 const motions = {}
 
 motions.h = function (count) {
