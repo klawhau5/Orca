@@ -76,7 +76,6 @@ function Cursor (client) {
   this.reset = (pos = false) => {
     this.select(pos ? 0 : this.x, pos ? 0 : this.y, 0, 0)
     this.ins = 0
-    client.vim.isVisual = false
   }
 
   this.read = () => {

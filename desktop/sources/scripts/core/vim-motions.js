@@ -44,6 +44,7 @@ motions.Escape = function () {
     client.vim.move(-1, 0, -1, 0)
   }
   client.vim.isInsert = false
+  client.vim.isVisual = false
   client.cursor.ins = false
   client.cursor.reset()
 }
