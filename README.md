@@ -27,3 +27,12 @@ Fork of the lovely [ORCΛ](https://github.com/hundredrabbits/orca) from Hundred 
 | [<kbd>'</kbd>*x*]<kbd>d</kbd>{*motion*}  | Delete the text that motion moves over (into optional register) |
 | [<kbd>'</kbd>*x*]<kbd>y</kbd>{*motion*}  | Yank the text that motion moves over (into optional register) |
 | [<kbd>'</kbd>*x*]<kbd>p</kbd>            | Put text (from optional register) at cursor position         |
+
+## Minimal Vim Configuration Support
+
+Edit ```/desktop/vimrc.json``` to achieve simple remappings. In this example we remap several motion keys to include a count:
+
+```json
+{"H": "8h", "J": "8j", "K": "8k", "L": "8l"}
+```
+
