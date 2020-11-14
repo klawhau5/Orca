@@ -1,36 +1,38 @@
 'use strict'
 
-/* global vim-motions */
+/* global vim-command */
+/* global vim-edit */
+/* global vim-mark */
+/* global vim-motion */
+/* global vim-operator */
+/* global vim-search */
 
 const fs = require('fs')
 
 function Vim (client) {
-  this.motions = motions
+  this.editKeys = editKeys
+  this.markKeys = markKeys
+  this.motionKeys = motionKeys
+  this.operatorKeys = operatorKeys
+  this.searchKeys = searchKeys
   this.isActive = false
   this.isInsert = false
   this.isVisual = false
   this.inputBuffer = []
-  this.operator = ''
-  this.count = 1
-  this.motion = ''
-  this.identifier = ''
   this.mappings = {}
   this.marks = {}
   this.findString = ''
 
+  this.command = new Command(this)
+
   // {operator} {count} {motion}
   // {count} {operator} {motion}
-
-  this.operators = ['c', 'd', 'y']
 
   this.start = () => {
     this.isActive = true
     this.isInsert = false
     this.isVisual = false
     this.inputBuffer = []
-    this.operator = ''
-    this.count = 1
-    this.motion = ''
     client.cursor.ins = false
     client.acels.setPipe(this)
     client.update()
@@ -46,7 +48,7 @@ function Vim (client) {
     var outKey = inKey
     const data = fs.readFileSync(`${__dirname}/../vimrc.json`)
     this.mappings = JSON.parse(data)
-    for (var attributename in this.mappings){
+    for (const attributename in this.mappings){
       if (attributename == inKey) {
         outKey = this.mappings[attributename]
       }
@@ -60,43 +62,33 @@ function Vim (client) {
     may not be defined.
   */
 
-  this.parseCommand = () => {
-    const motionRegex = /\D/
-    const countRegex = /[\d]+/
-    const operatorRegex = /\D/
-    const identifierRegex = /\D/
-    this.motion = this.parseCommandComponent(motionRegex)
-    if (this.motion.length > 0) {
-      this.parseInputBuffer()
-      if (this.motion == 'm') {
-        if (this.identifier = this.parseCommandComponent(identifierRegex !== '')) {
-          return true
-        }
-      } else {
-        this.count = Number(this.parseCommandComponent(countRegex))
-        this.count = this.count == 0 ? 1 : this.count
-        this.operator = this.parseCommandComponent(operatorRegex)
-        return true
-      }
-    }
-  }
-
-  this.parseCommandComponent = (regex) => {
+  this.commandIsComplete = () => {
+    var count = 0
+    const countRegex = /\d/
     const lastInput = this.inputBuffer[this.inputBuffer.length - 1]
-    if (lastInput == 'Escape') { return lastInput }
-    const inputBufferString = this.inputBuffer.join('')
-    const componentIndex = inputBufferString.search(regex)
-    if (componentIndex > -1) {
-      this.popKey()
-      const component = inputBufferString.match(regex)
-      return component[component.length - 1]
+    if (lastInput.search(countRegex) > -1) {
+      if (this.command.getCount() > 0) {
+        count = Number(this.command.getCount().toString() + lastInput)
+      } else {
+        count = Number(lastInput)
+      }
+      this.command.setCount(count)
+    } else if (this.searchKeys.hasOwnProperty(lastInput)) {
+      this.command.setOperation(this.searchKeys[lastInput])
+      return true
+    } else if (this.editKeys.hasOwnProperty(lastInput)) {
+      this.command.setOperation(this.editKeys[lastInput])
+      return true
+    } else if (this.motionKeys.hasOwnProperty(lastInput)) {
+      this.command.setOperation(this.motionKeys[lastInput])
+      return true
     }
-    return ''
+    return false
   }
 
   this.processMotionOrCommand = () => {
-    if (this.parseCommand()) {
-      this.motions[this.motion](this.count)
+    if (this.commandIsComplete()) {
+      this.command.execute()
       this.clearInputBuffer()
     }
   }
@@ -121,14 +113,11 @@ function Vim (client) {
 
   // TODO: implement operators over motions
 
-  this.wordMotion = (direction) => {
-    if (this.operator.length) {
-    } else {
-      this.moveWord(direction)
-    }
+  this.wordMotion = (direction, count) => {
+    this.moveWord(direction, count)
   }
 
-  this.moveWord = (direction) => {
+  this.moveWord = (direction, count) => {
     var index = 0
     var indices = []
     var wordCount = 1
@@ -138,7 +127,7 @@ function Vim (client) {
       indices = this.getWordIndices(wordRegex, client.orca.s)
       while (index < indices.length) {
         if (indices[index] > client.orca.indexAt(client.cursor.x, client.cursor.y)) {
-          if (wordCount == this.count) {
+          if (wordCount == count) {
             newWordIndex = indices[index]
             break
           }
@@ -152,7 +141,7 @@ function Vim (client) {
       index = indices.length - 1
       while (index >= 0) {
         if (indices[index] < client.orca.indexAt(client.cursor.x, client.cursor.y)) {
-          if (wordCount == this.count) {
+          if (wordCount == count) {
             newWordIndex = indices[index]
             break
           }
@@ -227,8 +216,15 @@ function Vim (client) {
     if (key !== 'Escape') {
       key = key.split('')
     }
-    this.inputBuffer = this.inputBuffer.concat(key)
-    this.processMotionOrCommand()
+    if (key.length > 1 && key !== 'Escape') {
+      for (const keyPart of key) {
+        this.inputBuffer = this.inputBuffer.concat(keyPart)
+        this.processMotionOrCommand()
+      }
+    } else {
+      this.inputBuffer = this.inputBuffer.concat(key)
+      this.processMotionOrCommand()
+    }
   }
 
   this.trigger = () => {
@@ -241,26 +237,14 @@ function Vim (client) {
     this.inputBuffer.pop()
   }
 
-  /*
-    Numbers will enter as individual digits.
-    Need to combine to full entered number.
-  */
-
-  this.parseInputBuffer = () => {
-    const countRegex = /\d/
-    var countString = ''
-    for (let index = 0; index < this.inputBuffer.length; index++) {
-      if (this.inputBuffer[index].search(countRegex) > -1) {
-        countString += this.inputBuffer[index]
-      }
-    }
-    this.inputBuffer.splice(0, countString.length, countString)
-  }
-
   this.clearInputBuffer = () => {
     this.inputBuffer = []
-    this.operator = ''
-    this.count = 1
-    this.motion = ''
+  }
+
+  this.reset = () => {
+    this.clearInputBuffer()
+    this.isInsert = false
+    this.isVisual = false
+    this.command.flush()
   }
 }

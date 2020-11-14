@@ -55,6 +55,10 @@ function Orca (library) {
     this.s = s
   }
 
+  this.replaceAt = (character, index) => {
+    this.s[index] = character
+  }
+
   // Operators
 
   this.parse = function () {

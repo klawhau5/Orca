@@ -10,7 +10,7 @@
 /* global Commander */
 /* global Clock */
 /* global Theme */
-/* global Vim */
+/* global Vim-Client */
 
 function Client () {
   this.version = 178
