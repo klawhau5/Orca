@@ -11,26 +11,11 @@ function Command (vim) {
   this.operator = ''
   this.motion = ''
   this.identifier = ''
-
   this.operation = null
-
-  this.setCount = (count) => {
-    this.count = count
-  }
-
-  this.getCount = () => {
-    return this.count
-  }
-
-  this.setOperation = (operation) => {
-    this.operation = operation
-  }
-
-  this.setMotion = () => {
-  }
+  this.operationType = ''
 
   this.execute = () => {
-    this.operation(this.count)
+    this.operation(this)
     this.flush()
   }
 
@@ -40,5 +25,6 @@ function Command (vim) {
     this.motion = ''
     this.identifier = ''
     this.operation = null
+    this.operationType = ''
   }
 }

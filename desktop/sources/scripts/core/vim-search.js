@@ -4,17 +4,17 @@
 
 const searchKeys = {}
 
-searchKeys["/"] = function () {
+searchKeys["/"] = function (command) {
   client.vim.clearInputBuffer()
   client.acels.setPipe(client.commander)
   client.commander.start('find:')
 }
 
-searchKeys.n = function () {
+searchKeys.n = function (command) {
   client.vim.findNext(1)
 }
 
-searchKeys.N = function () {
+searchKeys.N = function (command) {
   client.vim.findNext(-1)
 }
 

@@ -14,6 +14,7 @@ function Vim (client) {
   this.markKeys = markKeys
   this.motionKeys = motionKeys
   this.operatorKeys = operatorKeys
+  this.registerKeys = registerKeys
   this.searchKeys = searchKeys
   this.isActive = false
   this.isInsert = false
@@ -21,12 +22,18 @@ function Vim (client) {
   this.inputBuffer = []
   this.mappings = {}
   this.marks = {}
+  this.currentRegister = '"'
+  this.registers = {}
   this.findString = ''
 
-  this.command = new Command(this)
+  const editType = 1
+  const markType = 2
+  const motionType = 3
+  const operatorType = 4
+  const registerType = 5
+  const searchType = 6
 
-  // {operator} {count} {motion}
-  // {count} {operator} {motion}
+  this.command = new Command(this)
 
   this.start = () => {
     this.isActive = true
@@ -63,27 +70,52 @@ function Vim (client) {
   */
 
   this.commandIsComplete = () => {
-    var count = 0
-    const countRegex = /\d/
     const lastInput = this.inputBuffer[this.inputBuffer.length - 1]
-    if (lastInput.search(countRegex) > -1) {
-      if (this.command.getCount() > 0) {
-        count = Number(this.command.getCount().toString() + lastInput)
-      } else {
-        count = Number(lastInput)
+    if (this.command.operationType > 0) {
+      if (this.command.operationType === markType) {
+        this.command.identifier = lastInput
+        return true
       }
-      this.command.setCount(count)
-    } else if (this.searchKeys.hasOwnProperty(lastInput)) {
-      this.command.setOperation(this.searchKeys[lastInput])
-      return true
-    } else if (this.editKeys.hasOwnProperty(lastInput)) {
-      this.command.setOperation(this.editKeys[lastInput])
-      return true
-    } else if (this.motionKeys.hasOwnProperty(lastInput)) {
-      this.command.setOperation(this.motionKeys[lastInput])
-      return true
+      if (this.command.operationType === registerType) {
+        this.command.identifier = lastInput
+        return true
+      }
+    } else {
+      this.initializeCommand(lastInput)
+      if (this.command.operationType === editType ||
+          this.command.operationType === motionType ||
+          this.command.operationType === searchType
+      ) {
+        return true
+      }
     }
     return false
+  }
+
+  this.initializeCommand = (commandKey) => {
+    const countRegex = /\d/
+    if (commandKey.search(countRegex) > -1) {
+      if (this.command.count > 0) {
+        this.command.count = Number(this.command.count.toString() + commandKey)
+      } else {
+        this.command.count = Number(commandKey)
+      }
+    } else if (this.registerKeys.hasOwnProperty(commandKey)) {
+      this.command.operation = this.registerKeys[commandKey]
+      this.command.operationType = registerType
+    } else if (this.markKeys.hasOwnProperty(commandKey)) {
+      this.command.operation = this.markKeys[commandKey]
+      this.command.operationType = markType
+    } else if (this.searchKeys.hasOwnProperty(commandKey)) {
+      this.command.operation = this.searchKeys[commandKey]
+      this.command.operationType = searchType
+    } else if (this.editKeys.hasOwnProperty(commandKey)) {
+      this.command.operation = this.editKeys[commandKey]
+      this.command.operationType = editType
+    } else if (this.motionKeys.hasOwnProperty(commandKey)) {
+      this.command.operation = this.motionKeys[commandKey]
+      this.command.operationType = motionType
+    }
   }
 
   this.processMotionOrCommand = () => {
@@ -163,14 +195,18 @@ function Vim (client) {
     return indices;
   }
 
+  this.setRegister = (identifier) => {
+    this.currentRegister = identifier
+  }
+
   this.setMark = (identifier, xPosition, yPosition) => {
     const index = client.orca.indexAt(xPosition, yPosition)
-    this.marks[identifier, index]
+    this.marks[identifier] = index
   }
 
   this.getMark = (identifier) => {
-    var outIndex = -1
-    if (outIndex = this.marks[identifier] > 0) {
+    const outIndex = this.marks[identifier]
+    if (outIndex > 0) {
       return outIndex
     }
     return client.orca.indexAt(client.cursor.x, client.cursor.y)
@@ -225,6 +261,27 @@ function Vim (client) {
       this.inputBuffer = this.inputBuffer.concat(key)
       this.processMotionOrCommand()
     }
+  }
+
+  this.yank = () => {
+    this.registers[this.currentRegister] = client.cursor.selection()
+    this.currentRegister = '"'
+  }
+
+  this.delete = () => {
+    this.yank()
+    client.cursor.erase()
+    this.currentRegister = '"'
+  }
+
+  this.put = () => {
+    if (this.registers.hasOwnProperty(this.currentRegister)) {
+      const data = this.registers[this.currentRegister].trim()
+      client.orca.writeBlock(client.cursor.minX, client.cursor.minY, data, client.cursor.ins)
+      client.history.record(client.orca.s)
+      client.cursor.scaleTo(data.split(/\r?\n/)[0].length - 1, data.split(/\r?\n/).length - 1)
+    }
+    this.currentRegister = '"'
   }
 
   this.trigger = () => {

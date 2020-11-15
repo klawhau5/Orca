@@ -4,11 +4,12 @@
 
 const markKeys = {}
 
-markKeys.m = function () {
-  client.vim.setMark(client.vim.identifier, client.cursor.x, client.cursor.y)
+markKeys.m = function (command) {
+  client.vim.setMark(command.identifier, client.cursor.x, client.cursor.y)
 }
 
-markKeys["'"] = function () {
-  const markIndex = client.vim.getMark(this.identifier)
-  client.cursor.moveTo(client.orca.posAt(markIndex))
+markKeys["'"] = function (command) {
+  const markIndex = client.vim.getMark(command.identifier)
+  const position = client.orca.posAt(markIndex)
+  client.cursor.moveTo(position.x, position.y)
 }

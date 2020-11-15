@@ -4,34 +4,34 @@
 
 const motionKeys = {}
 
-motionKeys.h = function (count = 1) {
-  count = count ? count : 1
-  client.vim.move(-count, 0, -count, 0)
+motionKeys.h = function (command) {
+  command.count = command.count ? command.count : 1
+  client.vim.move(-command.count, 0, -command.count, 0)
 }
 
-motionKeys.j = function (count = 1) {
-  count = count ? count : 1
-  client.vim.move(0, -count, 0, count)
+motionKeys.j = function (command) {
+  command.count = command.count ? command.count : 1
+  client.vim.move(0, -command.count, 0, command.count)
 }
 
-motionKeys.k = function (count = 1) {
-  count = count ? count : 1
-  client.vim.move(0, count, 0, -count)
+motionKeys.k = function (command) {
+  command.count = command.count ? command.count : 1
+  client.vim.move(0, command.count, 0, -command.count)
 }
 
-motionKeys.l = function (count = 1) {
-  count = count ? count : 1
-  client.vim.move(count, 0, count, 0)
+motionKeys.l = function (command) {
+  command.count = command.count ? command.count : 1
+  client.vim.move(command.count, 0, command.count, 0)
 }
 
-motionKeys.w = function (count = 1) {
-  count = count ? count : 1
-  client.vim.wordMotion(1, count)
+motionKeys.w = function (command) {
+  command.count = command.count ? command.count : 1
+  client.vim.wordMotion(1, command.count)
 }
 
-motionKeys.b = function (count = 1) {
-  count = count ? count : 1
-  client.vim.wordMotion(-1, count)
+motionKeys.b = function (command) {
+  command.count = command.count ? command.count : 1
+  client.vim.wordMotion(-1, command.count)
 }
 
 motionKeys.Escape = function () {

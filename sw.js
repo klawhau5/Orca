@@ -19,6 +19,7 @@ const assets = [
   './desktop/sources/scripts/core/vim-mark.js'
   './desktop/sources/scripts/core/vim-motions.js'
   './desktop/sources/scripts/core/vim-operator.js'
+  './desktop/sources/scripts/core/vim-register.js'
   './desktop/sources/scripts/core/vim-search.js'
   './desktop/sources/scripts/core/io/cc.js',
   './desktop/sources/scripts/core/io/midi.js',
