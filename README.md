@@ -23,10 +23,10 @@ Fork of the lovely [ORCΛ](https://github.com/hundredrabbits/orca) from Hundred 
 | <kbd>'</kbd>{*a-zA-Z*}        | Jump to mark                                                 |
 | <kbd>Esc</kbd>                | Return to Normal mode                                        |
 | <kbd>u</kbd>                  | Undo last change                                             |
-| [<kbd>'</kbd>*x*]<kbd>x</kbd> | Delete character under cursor (into optional register)       |
-| [<kbd>'</kbd>*x*]<kbd>d</kbd>{*motion*}  | Delete the text that motion moves over (into optional register) |
-| [<kbd>'</kbd>*x*]<kbd>y</kbd>{*motion*}  | Yank the text that motion moves over (into optional register) |
-| [<kbd>'</kbd>*x*]<kbd>p</kbd>            | Put text (from optional register) at cursor position         |
+| [<kbd>"</kbd>*x*]<kbd>x</kbd> | Delete character under cursor (into optional register)       |
+| [<kbd>"</kbd>*x*]<kbd>d</kbd>{*motion*} | Delete the text that motion moves over (into optional register) |
+| [<kbd>"</kbd>*x*]<kbd>y</kbd>{*motion*} | Yank the text that motion moves over (into optional register) |
+| [<kbd>"</kbd>*x*]<kbd>p</kbd>          | Put text (from optional register) at cursor position         |
 
 ## Minimal Vim Configuration Support
 
