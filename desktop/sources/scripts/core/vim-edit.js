@@ -9,10 +9,6 @@ editKeys.i = function (command) {
   client.vim.isInsert = true
 }
 
-editKeys.r = function (command) {
-  client.orca.replaceAt(character, client.orca.indexAt(client.cursor.x, client.cursor.y))
-}
-
 editKeys.y = function (command) {
   if (client.vim.isVisual) { client.vim.isVisual = false }
   client.vim.yank()

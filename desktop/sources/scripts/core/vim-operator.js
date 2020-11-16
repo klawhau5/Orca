@@ -9,3 +9,7 @@ operatorKeys.d = function (command) {
   client.cursor.cut()
 }
 
+operatorKeys.r = function (command) {
+  client.orca.replaceAt(command.identifier, client.orca.indexAt(client.cursor.x, client.cursor.y))
+}
+

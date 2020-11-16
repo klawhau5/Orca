@@ -72,6 +72,10 @@ function Vim (client) {
   this.commandIsComplete = () => {
     const lastInput = this.inputBuffer[this.inputBuffer.length - 1]
     if (this.command.operationType > 0) {
+      if (this.command.operationType === operatorType) {
+        this.command.identifier = lastInput
+        return true
+      }
       if (this.command.operationType === markType) {
         this.command.identifier = lastInput
         return true
@@ -100,6 +104,9 @@ function Vim (client) {
       } else {
         this.command.count = Number(commandKey)
       }
+    } else if (this.operatorKeys.hasOwnProperty(commandKey)) {
+      this.command.operation = this.operatorKeys[commandKey]
+      this.command.operationType = operatorType
     } else if (this.registerKeys.hasOwnProperty(commandKey)) {
       this.command.operation = this.registerKeys[commandKey]
       this.command.operationType = registerType
