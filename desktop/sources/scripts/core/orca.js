@@ -56,7 +56,9 @@ function Orca (library) {
   }
 
   this.replaceAt = (character, index) => {
-    this.s = this.s.substring(0, index) + character + this.s.substring(index + 1)
+    if (this.isAllowed(character)) {
+      this.s = this.s.substring(0, index) + character + this.s.substring(index + 1)
+    }
   }
 
   // Operators

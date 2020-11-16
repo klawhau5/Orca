@@ -104,24 +104,24 @@ function Vim (client) {
       } else {
         this.command.count = Number(commandKey)
       }
+    } else if (this.editKeys.hasOwnProperty(commandKey)) {
+      this.command.operation = this.editKeys[commandKey]
+      this.command.operationType = editType
+    } else if (this.markKeys.hasOwnProperty(commandKey)) {
+      this.command.operation = this.markKeys[commandKey]
+      this.command.operationType = markType
+    } else if (this.motionKeys.hasOwnProperty(commandKey)) {
+      this.command.operation = this.motionKeys[commandKey]
+      this.command.operationType = motionType
     } else if (this.operatorKeys.hasOwnProperty(commandKey)) {
       this.command.operation = this.operatorKeys[commandKey]
       this.command.operationType = operatorType
     } else if (this.registerKeys.hasOwnProperty(commandKey)) {
       this.command.operation = this.registerKeys[commandKey]
       this.command.operationType = registerType
-    } else if (this.markKeys.hasOwnProperty(commandKey)) {
-      this.command.operation = this.markKeys[commandKey]
-      this.command.operationType = markType
     } else if (this.searchKeys.hasOwnProperty(commandKey)) {
       this.command.operation = this.searchKeys[commandKey]
       this.command.operationType = searchType
-    } else if (this.editKeys.hasOwnProperty(commandKey)) {
-      this.command.operation = this.editKeys[commandKey]
-      this.command.operationType = editType
-    } else if (this.motionKeys.hasOwnProperty(commandKey)) {
-      this.command.operation = this.motionKeys[commandKey]
-      this.command.operationType = motionType
     }
   }
 
