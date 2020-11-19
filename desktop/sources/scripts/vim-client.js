@@ -312,5 +312,3 @@ function Vim (client) {
     this.command.flush()
   }
 }
-
-// test git osx
