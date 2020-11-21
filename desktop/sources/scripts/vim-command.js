@@ -13,6 +13,7 @@ function Command (vim) {
   this.identifier = ''
   this.operation = null
   this.operationType = ''
+  this.isVisual = false
 
   this.execute = () => {
     this.operation(this)
@@ -26,5 +27,6 @@ function Command (vim) {
     this.identifier = ''
     this.operation = null
     this.operationType = ''
+    this.isVisual = false
   }
 }

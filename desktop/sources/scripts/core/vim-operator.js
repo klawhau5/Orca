@@ -6,7 +6,7 @@ const operatorKeys = {}
 
 operatorKeys.d = function (command) {
   if (client.vim.isVisual) { client.vim.isVisual = false }
-  client.cursor.cut()
+  client.vim.delete()
 }
 
 operatorKeys.r = function (command) {

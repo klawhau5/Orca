@@ -16,6 +16,7 @@ const assets = [
   './desktop/sources/scripts/core/orca.js',
   './desktop/sources/scripts/core/transpose.js',
   './desktop/sources/scripts/core/vim-edit.js'
+  './desktop/sources/scripts/core/vim-find.js'
   './desktop/sources/scripts/core/vim-mark.js'
   './desktop/sources/scripts/core/vim-motion.js'
   './desktop/sources/scripts/core/vim-operator.js'

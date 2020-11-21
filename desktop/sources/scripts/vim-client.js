@@ -11,6 +11,7 @@ const fs = require('fs')
 
 function Vim (client) {
   this.editKeys = editKeys
+  this.findKeys = findKeys
   this.markKeys = markKeys
   this.motionKeys = motionKeys
   this.operatorKeys = operatorKeys
@@ -27,11 +28,12 @@ function Vim (client) {
   this.findString = ''
 
   const editType = 1
-  const markType = 2
-  const motionType = 3
-  const operatorType = 4
-  const registerType = 5
-  const searchType = 6
+  const findType = 2
+  const markType = 3
+  const motionType = 4
+  const operatorType = 5
+  const registerType = 6
+  const searchType = 7
 
   this.command = new Command(this)
 
@@ -84,11 +86,16 @@ function Vim (client) {
         this.command.identifier = lastInput
         return true
       }
+      if (this.command.operationType === findType) {
+        this.command.identifier = lastInput
+        return true
+      }
     } else {
       this.initializeCommand(lastInput)
       if (this.command.operationType === editType ||
           this.command.operationType === motionType ||
-          this.command.operationType === searchType
+          this.command.operationType === searchType ||
+         (this.command.operationType === operatorType && this.command.isVisual === true)
       ) {
         return true
       }
@@ -104,6 +111,9 @@ function Vim (client) {
       } else {
         this.command.count = Number(commandKey)
       }
+    } else if (this.findKeys.hasOwnProperty(commandKey)) {
+      this.command.operation = this.findKeys[commandKey]
+      this.command.operationType = findType
     } else if (this.editKeys.hasOwnProperty(commandKey)) {
       this.command.operation = this.editKeys[commandKey]
       this.command.operationType = editType
@@ -116,6 +126,7 @@ function Vim (client) {
     } else if (this.operatorKeys.hasOwnProperty(commandKey)) {
       this.command.operation = this.operatorKeys[commandKey]
       this.command.operationType = operatorType
+      this.command.isVisual = this.isVisual
     } else if (this.registerKeys.hasOwnProperty(commandKey)) {
       this.command.operation = this.registerKeys[commandKey]
       this.command.operationType = registerType
@@ -217,6 +228,27 @@ function Vim (client) {
       return outIndex
     }
     return client.orca.indexAt(client.cursor.x, client.cursor.y)
+  }
+
+  this.findInLine = (character, count) => {
+    var wordCount = 1
+    var findIndex = -1
+    var indices = []
+    const line = client.orca.s.substr(client.cursor.y * client.orca.w, client.orca.w)
+    indices = this.getWordIndices(RegExp(character, 'g'), line)
+    for (var index of indices) {
+      if (index > client.cursor.x) {
+        if (count == wordCount) {
+          findIndex = index
+          break
+        }
+        wordCount++
+      }
+    }
+    if (findIndex > -1) {
+      const findPosition = client.orca.posAt(findIndex + client.cursor.y * client.orca.w)
+      client.cursor.moveTo(findPosition.x, findPosition.y)
+    }
   }
 
   this.find = (searchString) => {
